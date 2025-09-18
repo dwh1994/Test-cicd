@@ -17,13 +17,30 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    //签名文件配置
+    signingConfigs {
+        create("config") {
+            storeFile = file("../app/test1.jks")
+            storePassword = "123456"
+            keyAlias = "key0"
+            keyPassword = "123456"
+        }
+    }
     buildTypes {
+        debug {
+            // 签名设置
+            signingConfig = signingConfigs.getByName("config")
+        }
         release {
             isMinifyEnabled = false
+            // 指定混淆保留规则
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            // 签名设置
+            signingConfig = signingConfigs.getByName("config")
         }
     }
     compileOptions {

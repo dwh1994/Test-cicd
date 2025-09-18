@@ -27,14 +27,22 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      # 从 secrets 中读取 Base64 字符串并解码回 .jks 文件
+      - name: Decode Keystore
+        run: |
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > ${{ github.workspace }}/release-keystore.jks
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Build with Gradle
-        run: ./gradlew build
 
-      # Create APK Debug
-      - name: Build apk debug project (APK) - ${{ env.main_project_module }} module
-        run: ./gradlew assembleDebug
+      # 运行 Gradle 打包命令，并通过 env 传入 secrets
+      - name: Build with Gradle
+        run: ./gradlew assembleRelease
+        env:
+         KEYSTORE_FILE: ${{ github.workspace }}/release-keystore.jks
+         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       # Upload Artifact Build
       # Noted For Output [main_project_module]/build/outputs/apk/debug/
