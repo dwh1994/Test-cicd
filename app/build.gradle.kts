@@ -20,7 +20,7 @@ android {
     //签名文件配置
     signingConfigs {
         create("config") {
-            storeFile = file("../app/test1.jks")
+            storeFile = file("../test1.jks")
             storePassword = "123456"
             keyAlias = "key0"
             keyPassword = "123456"
