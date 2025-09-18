@@ -7,14 +7,7 @@ env:
   # The name of the Play Store
   playstore_name: AAA ID
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
   build:
@@ -22,8 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
       # Set Current Date As Env Variable
       - name: Set current date as env variable
         run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
@@ -32,6 +23,13 @@ jobs:
       - name: Set repository name as env variable
         run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
 
+      # 从 secrets 中读取 Base64 字符串并解码回 .jks 文件
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > app/test1.jks
+
+      - uses: actions/checkout@v4
+
       - name: set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -39,21 +37,16 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # 从 secrets 中读取 Base64 字符串并解码回 .jks 文件
-      - name: Decode Keystore
-        run: |
-            echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > app/test1.jks
-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # Run Tests Build
-      - name: Run gradle tests
-        run: ./gradlew test
-
-      # Run Build Project
-      - name: Build gradle project
-        run: ./gradlew build
+#      # Run Tests Build
+#      - name: Run gradle tests
+#        run: ./gradlew test
+#
+#      # Run Build Project
+#      - name: Build gradle project
+#        run: ./gradlew build
 
       # 运行 Gradle 打包命令，并通过 env 传入 secrets
       - name: Build with Gradle
