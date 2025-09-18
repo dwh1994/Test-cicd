@@ -32,6 +32,10 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       # 从 secrets 中读取 Base64 字符串并解码回 .jks 文件
       - name: Decode Keystore
         run: |
