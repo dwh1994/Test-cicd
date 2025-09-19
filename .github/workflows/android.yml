@@ -1,69 +1,56 @@
 name: Android CI
 
-env:
-  # The name of the main module repository
-  main_project_module: app
-
-  # The name of the Play Store
-  playstore_name: AAA ID
-
 on: workflow_dispatch
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
+      # Checks out the repository code to the runner's filesystem.
       - uses: actions/checkout@v4
 
-      # Set Current Date As Env Variable
-      - name: Set current date as env variable
-        run: echo "date_today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+      # Grants executable permissions to the Gradle wrapper script.
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
-      # Set Repository Name As Env Variable
-      - name: Set repository name as env variable
-        run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
-
+      # Sets up Java Development Kit version 17 for the build environment.
       - name: set up JDK 17
         uses: actions/setup-java@v4
         with:
+          # Specifies the Java version to use.
           java-version: '17'
+          # Uses the Eclipse Temurin distribution of the JDK.
           distribution: 'temurin'
+          # Caches Gradle dependencies to speed up future builds.
           cache: gradle
 
-
+      # Configures Gradle for the workflow, ensuring compatibility and caching.
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
       # 从 secrets 中读取 Base64 字符串并解码回 .jks 文件
       - name: Decode Keystore
         run: |
-            echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > test1.jks
+          echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > test1.jks
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-#      # Run Tests Build
-#      - name: Run gradle tests
-#        run: ./gradlew test
-#
-#      # Run Build Project
-#      - name: Build gradle project
-#        run: ./gradlew build
+      # Removes previous build artifacts to ensure a clean build environment.
+      - name: Clean Gradle
+        run: ./gradlew clean
 
       # 运行 Gradle 打包命令，并通过 env 传入 secrets
-      - name: Build with Gradle
+      - name: Build APK
         run: ./gradlew assemble
         env:
-         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      # Upload Artifact Build
-      # Noted For Output [main_project_module]/build/outputs/apk/debug/
-      - name: Upload APK Release - ${{ env.repository_name }}
+      # Uploads the generated APK as a workflow artifact for download.
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) release generated
-          path: ${{ env.main_project_module }}/build/outputs/apk/release/
+          name: APK(s) release generated
+          path: app/build/outputs/apk/release/
+          # Sets the artifact retention period to 90 days.
+          retention-days: 90
