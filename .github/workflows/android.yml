@@ -26,8 +26,8 @@ jobs:
           cache: gradle
 
       # Configures Gradle for the workflow, ensuring compatibility and caching.
-#      - name: Setup Gradle
-#        uses: gradle/actions/setup-gradle@v4
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       # 从 secrets 中读取 Base64 字符串并解码回 .jks 文件
       - name: Decode Keystore
@@ -35,8 +35,8 @@ jobs:
           echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > test1.jks
 
       # Removes previous build artifacts to ensure a clean build environment.
-#      - name: Clean Gradle
-#        run: ./gradlew clean
+      - name: Clean Gradle
+        run: ./gradlew clean
 
       # 运行 Gradle 打包命令，并通过 env 传入 secrets
       - name: Build APK
