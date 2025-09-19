@@ -40,7 +40,7 @@ jobs:
       # 从 secrets 中读取 Base64 字符串并解码回 .jks 文件
       - name: Decode Keystore
         run: |
-          echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > mpcvault.jks
+          echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > test1.jks
 
       # Removes previous build artifacts to ensure a clean build environment.
       #      - name: Clean Gradle
