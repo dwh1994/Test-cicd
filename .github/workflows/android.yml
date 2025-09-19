@@ -21,6 +21,11 @@ jobs:
           # Caches Gradle dependencies to speed up future builds.
           cache: gradle
 
+      # 从 secrets 中读取 Base64 字符串并解码回 .jks 文件
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > test1.jks
+
       # Grants executable permissions to the Gradle wrapper script.
       - name: Make gradlew executable
         run: chmod +x ./gradlew
@@ -28,11 +33,6 @@ jobs:
       # Configures Gradle for the workflow, ensuring compatibility and caching.
       #      - name: Setup Gradle
       #        uses: gradle/actions/setup-gradle@v4
-
-      # 从 secrets 中读取 Base64 字符串并解码回 .jks 文件
-      - name: Decode Keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > test1.jks
 
       # Run Tests Build
       - name: Run gradle tests
