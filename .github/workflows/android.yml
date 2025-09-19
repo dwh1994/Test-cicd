@@ -25,14 +25,6 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # Run Tests Build
-      - name: Run gradle tests
-        run: ./gradlew test
-
-      # Run Build Project
-      - name: Build gradle project
-        run: ./gradlew build
-
       # Configures Gradle for the workflow, ensuring compatibility and caching.
       #      - name: Setup Gradle
       #        uses: gradle/actions/setup-gradle@v4
@@ -41,6 +33,14 @@ jobs:
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > test1.jks
+
+      # Run Tests Build
+      - name: Run gradle tests
+        run: ./gradlew test
+
+      # Run Build Project
+      - name: Build gradle project
+        run: ./gradlew build
 
       # Removes previous build artifacts to ensure a clean build environment.
       #      - name: Clean Gradle
